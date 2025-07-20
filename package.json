@@ -1,0 +1,29 @@
+{
+  "name": "simpmusic-utils",
+  "version": "1.0.0",
+  "description": "Chrome extension to extract cookies from YouTube Music and Spotify",
+  "main": "dist/background.js",
+  "scripts": {
+    "build": "webpack --config webpack.config.js",
+    "watch": "webpack --config webpack.config.js --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "chrome-extension",
+    "youtube-music",
+    "spotify",
+    "cookies",
+    "typescript",
+    "simpmusic"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.237",
+    "copy-webpack-plugin": "^11.0.0",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
+  }
+}

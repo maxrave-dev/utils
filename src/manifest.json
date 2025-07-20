@@ -1,0 +1,28 @@
+{
+  "manifest_version": 3,
+  "name": "SimpMusic Utils",
+  "version": "1.0.0",
+  "description": "Extract cookies from YouTube Music and Spotify (sp_dc parameter)",
+  "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "host_permissions": [
+    "*://*.youtube.com/*",
+    "*://music.youtube.com/*",
+    "*://*.spotify.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

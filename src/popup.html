@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimpMusic Utils</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <h1>SimpMusic Utils</h1>
+    
+    <div class="service-section">
+      <h2>YouTube Music</h2>
+      <div class="buttons">
+        <button id="extract-youtube-music">Extract Cookies</button>
+        <button id="copy-youtube-music" disabled>Copy to Clipboard</button>
+      </div>
+      <div class="result">
+        <textarea id="youtube-music-result" readonly></textarea>
+      </div>
+    </div>
+    
+    <div class="service-section">
+      <h2>Spotify (sp_dc)</h2>
+      <div class="buttons">
+        <button id="extract-spotify">Extract Cookie</button>
+        <button id="copy-spotify" disabled>Copy to Clipboard</button>
+      </div>
+      <div class="result">
+        <textarea id="spotify-result" readonly></textarea>
+      </div>
+    </div>
+    
+    <div id="status" class="status"></div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html> 
