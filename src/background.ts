@@ -8,6 +8,20 @@ interface CookieResult {
   };
 }
 
+interface MessageRequest {
+  action: string;
+}
+
+interface NetscapeResponse {
+  netscapeFormat: string;
+}
+
+interface MessageResponse {
+  success: boolean;
+  data?: CookieResult | NetscapeResponse;
+  error?: string;
+}
+
 // Function to get YouTube Music cookies
 const getYouTubeMusicCookies = async (): Promise<Record<string, string>> => {
   // Try to get cookies from both domains since YouTube Music uses cookies from youtube.com
@@ -34,6 +48,35 @@ const getYouTubeMusicCookies = async (): Promise<Record<string, string>> => {
   return result;
 };
 
+// Function to get YouTube Music cookies in Netscape format
+const getYouTubeMusicCookiesNetscape = async (): Promise<string> => {
+  const musicCookies = await chrome.cookies.getAll({
+    domain: 'music.youtube.com'
+  });
+  
+  const youtubeCookies = await chrome.cookies.getAll({
+    domain: '.youtube.com'
+  });
+  
+  const allCookies = [...musicCookies, ...youtubeCookies];
+  
+  // Netscape cookie file format header
+  let netscapeFormat = '# Netscape HTTP Cookie File\n';
+  netscapeFormat += '# This is a generated file! Do not edit.\n\n';
+  
+  // Convert cookies to Netscape format
+  for (const cookie of allCookies) {
+    const domain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
+    const path = cookie.path || '/';
+    const secure = cookie.secure ? 'TRUE' : 'FALSE';
+    const expires = cookie.expirationDate ? cookie.expirationDate.toString() : '0';
+    
+    netscapeFormat += `${domain}\tTRUE\t${path}\t${secure}\t${expires}\t${cookie.name}\t${cookie.value}\n`;
+  }
+  
+  return netscapeFormat;
+};
+
 // Function to get Spotify cookies (specifically sp_dc)
 const getSpotifyCookies = async (): Promise<{ sp_dc?: string }> => {
   const cookies = await chrome.cookies.getAll({
@@ -53,7 +96,7 @@ const getSpotifyCookies = async (): Promise<{ sp_dc?: string }> => {
 };
 
 // Listen for messages from popup
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message: MessageRequest, sender: chrome.runtime.MessageSender, sendResponse: (response: MessageResponse) => void) => {
   // Handle YouTube Music cookies extraction
   if (message.action === 'getYouTubeMusicCookies') {
     (async () => {
@@ -67,6 +110,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         sendResponse({ success: true, data: result });
       } catch (error) {
         console.error('Error extracting YouTube Music cookies:', error);
+        sendResponse({ success: false, error: (error as Error).message });
+      }
+    })();
+    
+    // Return true to indicate that the response is sent asynchronously
+    return true;
+  }
+  
+  // Handle YouTube Music cookies extraction in Netscape format
+  if (message.action === 'getYouTubeMusicCookiesNetscape') {
+    (async () => {
+      try {
+        const netscapeFormat = await getYouTubeMusicCookiesNetscape();
+        
+        sendResponse({ success: true, data: { netscapeFormat } });
+      } catch (error) {
+        console.error('Error extracting YouTube Music cookies in Netscape format:', error);
         sendResponse({ success: false, error: (error as Error).message });
       }
     })();

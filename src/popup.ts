@@ -1,3 +1,5 @@
+/// <reference types="chrome"/>
+
 // Type definitions
 interface CookieResult {
   youtubeMusic?: Record<string, string>;
@@ -6,9 +8,13 @@ interface CookieResult {
   };
 }
 
+interface NetscapeResponse {
+  netscapeFormat: string;
+}
+
 interface MessageResponse {
   success: boolean;
-  data?: CookieResult;
+  data?: CookieResult | NetscapeResponse;
   error?: string;
 }
 
@@ -16,6 +22,7 @@ interface MessageResponse {
 const extractYTMusicBtn = document.getElementById('extract-youtube-music') as HTMLButtonElement;
 const copyYTMusicBtn = document.getElementById('copy-youtube-music') as HTMLButtonElement;
 const ytMusicResult = document.getElementById('youtube-music-result') as HTMLTextAreaElement;
+const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
 
 const extractSpotifyBtn = document.getElementById('extract-spotify') as HTMLButtonElement;
 const copySpotifyBtn = document.getElementById('copy-spotify') as HTMLButtonElement;
@@ -41,26 +48,49 @@ const formatCookiesAsString = (cookies: Record<string, string>): string => {
     .join('; ');
 };
 
-// Function to extract YouTube Music cookies only
+// Function to extract YouTube Music cookies
 const extractYouTubeMusicCookies = () => {
   ytMusicResult.value = 'Loading...';
-  chrome.runtime.sendMessage({ action: 'getYouTubeMusicCookies' }, (response: MessageResponse) => {
+  const selectedFormat = formatSelect.value;
+  
+  const action = selectedFormat === 'netscape' ? 'getYouTubeMusicCookiesNetscape' : 'getYouTubeMusicCookies';
+  
+  chrome.runtime.sendMessage({ action }, (response: MessageResponse) => {
     if (chrome.runtime.lastError) {
       showStatus(`Error: ${chrome.runtime.lastError.message}`, true);
       return;
     }
 
-    if (response.success && response.data && response.data.youtubeMusic) {
-      // Display YouTube Music cookies
-      const ytMusicCookies = response.data.youtubeMusic;
-      if (Object.keys(ytMusicCookies).length > 0) {
-        // Format cookies as string instead of JSON
-        ytMusicResult.value = formatCookiesAsString(ytMusicCookies);
-        copyYTMusicBtn.disabled = false;
+    if (response.success && response.data) {
+      if (selectedFormat === 'netscape') {
+        // Type guard for NetscapeResponse
+        if ('netscapeFormat' in response.data) {
+          const netscapeData = response.data as NetscapeResponse;
+          if (netscapeData.netscapeFormat) {
+            ytMusicResult.value = netscapeData.netscapeFormat;
+            copyYTMusicBtn.disabled = false;
+            showStatus('YouTube Music cookies extracted in Netscape format!');
+          } else {
+            ytMusicResult.value = 'No YouTube Music cookies found';
+          }
+        } else {
+          ytMusicResult.value = 'Invalid response format';
+        }
       } else {
-        ytMusicResult.value = 'No YouTube Music cookies found';
+        // Type guard for CookieResult
+        if ('youtubeMusic' in response.data) {
+          const cookieData = response.data as CookieResult;
+          if (cookieData.youtubeMusic && Object.keys(cookieData.youtubeMusic).length > 0) {
+            ytMusicResult.value = formatCookiesAsString(cookieData.youtubeMusic);
+            copyYTMusicBtn.disabled = false;
+            showStatus('YouTube Music cookies extracted successfully!');
+          } else {
+            ytMusicResult.value = 'No YouTube Music cookies found';
+          }
+        } else {
+          ytMusicResult.value = 'Invalid response format';
+        }
       }
-      showStatus('YouTube Music cookies extracted successfully!');
     } else {
       ytMusicResult.value = '';
       showStatus(`Failed to extract YouTube Music cookies: ${response.error}`, true);
@@ -77,16 +107,21 @@ const extractSpotifyCookies = () => {
       return;
     }
 
-    if (response.success && response.data && response.data.spotify) {
-      // Display Spotify sp_dc cookie
-      const spotifySpDc = response.data.spotify.sp_dc;
-      if (spotifySpDc) {
-        spotifyResult.value = spotifySpDc;
-        copySpotifyBtn.disabled = false;
+    if (response.success && response.data) {
+      // Type guard for CookieResult with spotify
+      if ('spotify' in response.data) {
+        const cookieData = response.data as CookieResult;
+        const spotifySpDc = cookieData.spotify?.sp_dc;
+        if (spotifySpDc) {
+          spotifyResult.value = spotifySpDc;
+          copySpotifyBtn.disabled = false;
+          showStatus('Spotify cookies extracted successfully!');
+        } else {
+          spotifyResult.value = 'sp_dc cookie not found';
+        }
       } else {
-        spotifyResult.value = 'sp_dc cookie not found';
+        spotifyResult.value = 'Invalid response format';
       }
-      showStatus('Spotify cookies extracted successfully!');
     } else {
       spotifyResult.value = '';
       showStatus(`Failed to extract Spotify cookies: ${response.error}`, true);
@@ -108,6 +143,12 @@ const copyToClipboard = async (text: string): Promise<boolean> => {
 // Event listeners
 extractYTMusicBtn.addEventListener('click', extractYouTubeMusicCookies);
 extractSpotifyBtn.addEventListener('click', extractSpotifyCookies);
+
+// Clear result when format changes
+formatSelect.addEventListener('change', () => {
+  ytMusicResult.value = '';
+  copyYTMusicBtn.disabled = true;
+});
 
 copyYTMusicBtn.addEventListener('click', async () => {
   const success = await copyToClipboard(ytMusicResult.value);

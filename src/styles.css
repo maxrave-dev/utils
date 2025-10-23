@@ -32,6 +32,34 @@ h2 {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
+.format-selector {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.format-selector label {
+  font-size: 14px;
+  color: #555;
+  font-weight: 500;
+}
+
+.format-selector select {
+  padding: 4px 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  background-color: white;
+  cursor: pointer;
+}
+
+.format-selector select:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
 .buttons {
   display: flex;
   gap: 8px;
