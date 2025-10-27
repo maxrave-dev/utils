@@ -1,6 +1,6 @@
 {
   "name": "simpmusic-utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Extract cookies from YouTube Music (String or Netscape format) and Spotify (sp_dc parameter)",
   "main": "dist/background.js",
   "scripts": {

@@ -62,20 +62,24 @@ const getYouTubeMusicCookiesNetscape = async (): Promise<string> => {
   
   // Netscape cookie file format header
   let netscapeFormat = '# Netscape HTTP Cookie File\n';
-  netscapeFormat += '# This is a generated file! Do not edit.\n\n';
+  netscapeFormat += '# This is a generated file by SimpMusic Utils! Do not edit.\n\n';
   
   // Convert cookies to Netscape format
   for (const cookie of allCookies) {
-    const domain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
+    // Keep the domain as-is, preserving the leading dot if present
+    const domain = cookie.domain;
+    // The flag indicates if the cookie is valid for subdomains
+    const includeSubdomains = cookie.domain.startsWith('.') ? 'TRUE' : 'FALSE';
     const path = cookie.path || '/';
     const secure = cookie.secure ? 'TRUE' : 'FALSE';
     const expires = cookie.expirationDate ? cookie.expirationDate.toString() : '0';
     
-    netscapeFormat += `${domain}\tTRUE\t${path}\t${secure}\t${expires}\t${cookie.name}\t${cookie.value}\n`;
+    netscapeFormat += `${domain}\t${includeSubdomains}\t${path}\t${secure}\t${expires}\t${cookie.name}\t${cookie.value}\n`;
   }
   
   return netscapeFormat;
 };
+
 
 // Function to get Spotify cookies (specifically sp_dc)
 const getSpotifyCookies = async (): Promise<{ sp_dc?: string }> => {
