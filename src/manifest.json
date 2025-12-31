@@ -4,6 +4,14 @@
   "version": "1.1.1",
   "description": "Extract cookies from YouTube Music (String or Netscape format) and Spotify (sp_dc parameter)",
   "permissions": ["cookies", "tabs", "storage", "activeTab"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "@simpmusic.utils",
+      "data_collection_permissions": {
+        "required": ["websiteContent"]
+      }
+    }
+  },
   "host_permissions": [
     "*://*.youtube.com/*",
     "*://music.youtube.com/*",
@@ -18,7 +26,7 @@
     }
   },
   "background": {
-    "service_worker": "background.js"
+    "scripts": ["background.js"]
   },
   "icons": {
     "16": "icons/icon16.png",
